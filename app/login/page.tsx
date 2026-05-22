@@ -1,21 +1,35 @@
 'use client';
 
 import { useState } from 'react';
+import { signIn } from 'next-auth/react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // TODO: Wire up with NextAuth signIn
-    setTimeout(() => {
+    setError('');
+
+    const result = await signIn('credentials', {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (result?.error) {
+      setError('Invalid email or password');
       setLoading(false);
-      alert('Auth will be connected in next commit. For now this is UI only.');
-    }, 800);
+    } else {
+      router.push('/(dashboard)');
+      router.refresh();
+    }
   };
 
   return (
@@ -52,10 +66,14 @@ export default function LoginPage() {
               />
             </div>
 
+            {error && (
+              <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">{error}</div>
+            )}
+
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-zinc-900 text-white font-medium disabled:opacity-70"
+              className="w-full py-3 rounded-xl bg-zinc-900 text-white font-medium disabled:opacity-70 hover:bg-black"
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
