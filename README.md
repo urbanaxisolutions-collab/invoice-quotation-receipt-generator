@@ -10,7 +10,7 @@ Production-grade, GitHub-connected full-stack application built with **Next.js 1
 |-------|------------------|--------|
 | 0     | ✅ Done         | Master rules accepted |
 | 1     | ✅ **Complete** | Scaffold + Prisma + Auth + Seed |
-| 2     | ⏳ Pending      | Core Calculation Engine |
+| 2     | ✅ **Complete** | Core Calculation Engine + Zod + Numbering + Tests |
 | 3     | ⏳ Pending      | Document CRUD + Editor |
 | 4     | ⏳ Pending      | Conversion Workflow |
 | 5     | ⏳ Pending      | PDF Generation + Branding |
