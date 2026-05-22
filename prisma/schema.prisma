@@ -1,0 +1,141 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String?
+  name          String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  organizations UserOrganization[]
+}
+
+model Organization {
+  id                String   @id @default(cuid())
+  name              String
+  logoUrl           String?
+  address           String?
+  email             String?
+  phone             String?
+  taxId             String?
+  defaultCurrency   String   @default("MYR")
+  defaultTaxRate    Float    @default(0)
+  invoicePrefix     String   @default("INV")
+  quotePrefix       String   @default("QT")
+  receiptPrefix     String   @default("REC")
+  nextInvoiceNo     Int      @default(1)
+  nextQuoteNo       Int      @default(1)
+  nextReceiptNo     Int      @default(1)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  users             UserOrganization[]
+  clients           Client[]
+  documents         Document[]
+}
+
+model UserOrganization {
+  userId String
+  orgId  String
+  role   Role     @default(MEMBER)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  org  Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@id([userId, orgId])
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model Client {
+  id              String   @id @default(cuid())
+  orgId           String
+  name            String
+  email           String?
+  phone           String?
+  billingAddress  String?
+  shippingAddress String?
+  taxId           String?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  documents Document[]
+}
+
+model Document {
+  id               String   @id @default(cuid())
+  orgId            String
+  type             DocumentType
+  number           String
+  status           String
+  clientId         String?
+  issueDate        DateTime @default(now())
+  dueDate          DateTime?
+  currency         String   @default("MYR")
+  notes            String?
+  terms            String?
+  subtotalCents    Int      @default(0)
+  discountCents    Int      @default(0)
+  taxCents         Int      @default(0)
+  totalCents       Int      @default(0)
+  paidCents        Int      @default(0)
+  parentDocumentId String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  org              Organization @relation(fields: [orgId], references: [id])
+  client           Client?      @relation(fields: [clientId], references: [id])
+  lineItems        LineItem[]
+  payments         Payment[]
+
+  @@index([orgId, type, status])
+}
+
+enum DocumentType {
+  QUOTATION
+  INVOICE
+  RECEIPT
+}
+
+model LineItem {
+  id               String @id @default(cuid())
+  documentId       String
+  description      String
+  quantity         Int    @default(1)
+  unitPriceCents   Int    @default(0)
+  discountPercent  Float  @default(0)
+  taxRatePercent   Float  @default(0)
+  lineTotalCents   Int    @default(0)
+  sortOrder        Int    @default(0)
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  documentId  String
+  amountCents Int
+  method      String?
+  paidAt      DateTime @default(now())
+  reference   String?
+  note        String?
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+}
