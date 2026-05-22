@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { getDocument, updateDocument } from '@/server/documents';
+import { convertQuotationToInvoice, convertInvoiceToReceipt } from '@/server/conversions';
 import { computeDocumentTotals } from '@/lib/money';
 import type { LineItemInput } from '@/lib/schemas';
 
@@ -12,12 +13,14 @@ interface LineItem extends LineItemInput {
 
 export default function DocumentEditor() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const documentId = params.id;
 
   const [document, setDocument] = useState<any>(null);
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [converting, setConverting] = useState(false);
   const [discountCents, setDiscountCents] = useState(0);
 
   useEffect(() => {
@@ -82,6 +85,37 @@ export default function DocumentEditor() {
     }
   };
 
+  // Conversion handlers
+  const handleConvertToInvoice = async () => {
+    if (!confirm('Convert this quotation into an Invoice?')) return;
+
+    setConverting(true);
+    try {
+      const newInvoice = await convertQuotationToInvoice(documentId);
+      alert('Successfully converted to Invoice!');
+      router.push(`/(dashboard)/documents/${newInvoice.id}/edit`);
+    } catch (error: any) {
+      alert(error.message || 'Conversion failed');
+    } finally {
+      setConverting(false);
+    }
+  };
+
+  const handleConvertToReceipt = async () => {
+    if (!confirm('Convert this invoice into a Receipt?')) return;
+
+    setConverting(true);
+    try {
+      const newReceipt = await convertInvoiceToReceipt(documentId);
+      alert('Successfully converted to Receipt!');
+      router.push(`/(dashboard)/documents/${newReceipt.id}/edit`);
+    } catch (error: any) {
+      alert(error.message || 'Conversion failed');
+    } finally {
+      setConverting(false);
+    }
+  };
+
   if (loading) return <div className="p-8">Loading document...</div>;
   if (!document) return <div>Document not found</div>;
 
@@ -90,7 +124,8 @@ export default function DocumentEditor() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <div className="flex items-center gap-3">
-            <span className="px-4 py-1.5 text-sm font-medium rounded-full bg-zinc-900 text-white">
+            <span className="px-4 py-1.5 text-sm font-medium rounded-full bg-zinc-900 text-white
+">
               {document.type}
             </span>
             <span className="text-2xl font-semibold tracking-tight">{document.number}</span>
@@ -98,19 +133,42 @@ export default function DocumentEditor() {
           <p className="text-sm text-zinc-500 mt-1">Draft • Auto-saves coming soon</p>
         </div>
 
-        <button
-          onClick={saveDocument}
-          disabled={saving}
-          className="px-6 py-2.5 bg-zinc-900 text-white rounded-xl font-medium disabled:opacity-70"
-        >
-          {saving ? 'Saving...' : 'Save Changes'}
-        </button>
+        <div className="flex items-center gap-3">
+          {/* Conversion Buttons */}
+          {document?.type === 'QUOTATION' && (
+            <button
+              onClick={handleConvertToInvoice}
+              disabled={converting}
+              className="px-5 py-2.5 border border-zinc-300 rounded-xl text-sm font-medium hover:bg-zinc-50 disabled:opacity-50"
+            >
+              {converting ? 'Converting...' : 'Convert to Invoice →'}
+            </button>
+          )}
+
+          {document?.type === 'INVOICE' && ['PAID', 'PARTIAL'].includes(document?.status) && (
+            <button
+              onClick={handleConvertToReceipt}
+              disabled={converting}
+              className="px-5 py-2.5 border border-zinc-300 rounded-xl text-sm font-medium hover:bg-zinc-50 disabled:opacity-50"
+            >
+              {converting ? 'Converting...' : 'Convert to Receipt →'}
+            </button>
+          )}
+
+          <button
+            onClick={saveDocument}
+            disabled={saving}
+            className="px-6 py-2.5 bg-zinc-900 text-white rounded-xl font-medium disabled:opacity-70"
+          >
+            {saving ? 'Saving...' : 'Save Changes'}
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
           <div className="bg-white p-6 rounded-2xl border">
-            <h3 className="font-medium mb-4">Client &amp; Dates</h3>
+            <h3 className="font-medium mb-4">Client & Dates</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm text-zinc-600">Client</label>
@@ -233,7 +291,7 @@ export default function DocumentEditor() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium">Terms &amp; Conditions</label>
+            <label className="text-sm font-medium">Terms & Conditions</label>
             <textarea 
               className="w-full mt-2 h-24" 
               placeholder="Payment terms, validity period..."
@@ -283,6 +341,22 @@ export default function DocumentEditor() {
               Save Document
             </button>
           </div>
+
+          {/* Related Documents Timeline */}
+          {document?.parentDocumentId && (
+            <div className="bg-white p-6 rounded-2xl border mt-6">
+              <h4 className="font-medium mb-3 text-sm">Related Documents</h4>
+              <div className="text-sm text-zinc-600">
+                This document was converted from another document.
+              </div>
+              <a 
+                href={`/(dashboard)/documents/${document.parentDocumentId}/edit`} 
+                className="text-sm text-blue-600 hover:underline mt-2 inline-block"
+              >
+                View Source Document →
+              </a>
+            </div>
+          )}
         </div>
       </div>
     </div>
