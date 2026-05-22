@@ -85,7 +85,6 @@ export default function DocumentEditor() {
     }
   };
 
-  // Conversion handlers
   const handleConvertToInvoice = async () => {
     if (!confirm('Convert this quotation into an Invoice?')) return;
 
@@ -124,8 +123,7 @@ export default function DocumentEditor() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <div className="flex items-center gap-3">
-            <span className="px-4 py-1.5 text-sm font-medium rounded-full bg-zinc-900 text-white
-">
+            <span className="px-4 py-1.5 text-sm font-medium rounded-full bg-zinc-900 text-white">
               {document.type}
             </span>
             <span className="text-2xl font-semibold tracking-tight">{document.number}</span>
@@ -134,6 +132,15 @@ export default function DocumentEditor() {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* PDF Download */}
+          <a
+            href={`/api/documents/${documentId}/pdf`}
+            target="_blank"
+            className="px-4 py-2 border border-zinc-300 rounded-xl text-sm font-medium hover:bg-zinc-50"
+          >
+            Download PDF
+          </a>
+
           {/* Conversion Buttons */}
           {document?.type === 'QUOTATION' && (
             <button
@@ -168,7 +175,7 @@ export default function DocumentEditor() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
           <div className="bg-white p-6 rounded-2xl border">
-            <h3 className="font-medium mb-4">Client & Dates</h3>
+            <h3 className="font-medium mb-4">Client &amp; Dates</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm text-zinc-600">Client</label>
@@ -291,7 +298,7 @@ export default function DocumentEditor() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium">Terms & Conditions</label>
+            <label className="text-sm font-medium">Terms &amp; Conditions</label>
             <textarea 
               className="w-full mt-2 h-24" 
               placeholder="Payment terms, validity period..."
@@ -342,7 +349,6 @@ export default function DocumentEditor() {
             </button>
           </div>
 
-          {/* Related Documents Timeline */}
           {document?.parentDocumentId && (
             <div className="bg-white p-6 rounded-2xl border mt-6">
               <h4 className="font-medium mb-3 text-sm">Related Documents</h4>
