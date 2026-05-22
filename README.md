@@ -13,7 +13,7 @@ Production-grade, GitHub-connected full-stack application built with **Next.js 1
 | 2     | ✅ **Complete** | Core Calculation Engine + Zod + Numbering + Tests |
 | 3     | ✅ **Complete** | Document CRUD + Live Editor UI |
 | 4     | ✅ **Complete** | Conversion Workflow (Quotation → Invoice → Receipt) |
-| 5     | ⏳ Pending      | PDF Generation + Branding |
+| 5     | ✅ **Complete** | PDF Generation with React-PDF |
 | 6     | ⏳ Pending      | Payments & Automation |
 
 ## Tech Stack
