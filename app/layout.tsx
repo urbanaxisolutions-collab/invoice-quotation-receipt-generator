@@ -1,7 +1,12 @@
 import type { Metadata } from 'next';
-import { GeistSans, GeistMono } from 'geist/font';
+import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'sonner';
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
   title: 'DocsFlow • Invoices, Quotations & Receipts',
@@ -17,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+    <html lang="en" className={inter.variable}>
       <body className="font-sans antialiased bg-zinc-50 text-zinc-900">
         {children}
         <Toaster position="top-center" richColors closeButton />
