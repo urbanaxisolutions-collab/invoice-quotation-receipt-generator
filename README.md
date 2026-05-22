@@ -6,15 +6,15 @@ Production-grade, GitHub-connected full-stack application built with **Next.js 1
 
 ## Current Status
 
-| Phase | Status     | Commit |
-|-------|------------|--------|
-| 0     | ✅ Done    | Master rules accepted |
-| 1     | 🔄 In Progress | Scaffold + Prisma + Auth |
-| 2     | ⏳ Pending | Core Calculation Engine |
-| 3     | ⏳ Pending | Document CRUD + Editor |
-| 4     | ⏳ Pending | Conversion Workflow |
-| 5     | ⏳ Pending | PDF Generation + Branding |
-| 6     | ⏳ Pending | Payments & Automation |
+| Phase | Status          | Commit |
+|-------|------------------|--------|
+| 0     | ✅ Done         | Master rules accepted |
+| 1     | ✅ **Complete** | Scaffold + Prisma + Auth + Seed |
+| 2     | ⏳ Pending      | Core Calculation Engine |
+| 3     | ⏳ Pending      | Document CRUD + Editor |
+| 4     | ⏳ Pending      | Conversion Workflow |
+| 5     | ⏳ Pending      | PDF Generation + Branding |
+| 6     | ⏳ Pending      | Payments & Automation |
 
 ## Tech Stack
 
